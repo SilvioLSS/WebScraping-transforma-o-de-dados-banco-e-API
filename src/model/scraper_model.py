@@ -20,15 +20,15 @@ class ScraperModel:
             texto = a.get_text(strip=True)
             href = a.get('href', '')
 
-            if 'Anexo I' in texto and href.lower().endswith('.pdf'):
-                anexos_encontrados.append({
-                    'nome': 'Anexo I',
-                    'url': href
-                })
-
             if 'Anexo II' in texto and href.lower().endswith('.pdf'):
                 anexos_encontrados.append({
                     'nome': 'Anexo II',
+                    'url': href
+                })
+
+            if 'Anexo I' in texto and not 'Anexo II' in texto and href.lower().endswith('.pdf'):
+                anexos_encontrados.append({
+                    'nome': 'Anexo I',
                     'url': href
                 })
 
