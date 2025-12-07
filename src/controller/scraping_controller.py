@@ -51,6 +51,15 @@ class ScrapingController:
                 if sucessos > 0:
                     print("[CONTROLLER] Compactando arquivos...")
                     resultado_zip = self.zipper_model.criar_zip(pasta_pdfs)
+
+                if resultado_zip and resultado_zip['sucesso']:
+                    for arquivo in resultados:  # ← resultados, não resultado
+                        if arquivo['sucesso']:
+                            try:
+                                os.remove(arquivo['caminho'])
+                                print(f"🗑️  Excluído: {arquivo['nome']}")
+                            except Exception as e:
+                                print(f"⚠️  Não pude excluir {arquivo['nome']}: {e}") 
             
                 return{
                     'sucesso': True,
@@ -59,7 +68,7 @@ class ScrapingController:
                     'pasta': pasta_pdfs,
                     'zip': resultado_zip
                 }
-        
+
             except Exception as e:
                 return {
                     'sucesso': False,
