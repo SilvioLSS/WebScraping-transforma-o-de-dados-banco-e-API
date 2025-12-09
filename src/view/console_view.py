@@ -13,8 +13,7 @@ class ConsoleView:
             
             print(f"\n✅ {resultado['mensagem']}")
             print(f"📁 Pasta: {resultado['pasta']}")
-            
-            # Mostra arquivos baixados
+
             print("\n" + "-"*60)
             print("📄 ARQUIVOS BAIXADOS:")
             print("-"*60)
@@ -24,8 +23,7 @@ class ConsoleView:
                     print(f"   ✅ {arquivo['nome']}")
                 else:
                     print(f"   ❌ {arquivo['nome']} - FALHOU")
-            
-            # NOVO: Mostra info do ZIP
+
             if resultado.get('zip') and resultado['zip']['sucesso']:
                 zip_info = resultado['zip']
                 print("\n" + "="*60)

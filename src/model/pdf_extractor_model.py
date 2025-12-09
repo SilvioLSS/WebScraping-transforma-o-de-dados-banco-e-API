@@ -25,15 +25,13 @@ class PDFExtractorModel:
                 for i in range(pagina_inicio - 1, pagina_fim):
                     pagina = pdf.pages[i]
                     numero_pagina = i + 1
-
                     tabelas_pagina = pagina.extract_tables()
                     
                     if tabelas_pagina:
                         print(f"   📑 Página {numero_pagina}: {len(tabelas_pagina)} tabela(s)")
                         
                         for j, tabela in enumerate(tabelas_pagina):
-                            df = pd.DataFrame(tabela)
-                            
+                            df = pd.DataFrame(tabela)                            
                             df.attrs['pagina'] = numero_pagina
                             df.attrs['tabela_numero'] = j + 1
                             df.attrs['arquivo'] = os.path.basename(caminho_pdf)
@@ -47,44 +45,22 @@ class PDFExtractorModel:
             
         except Exception as e:
             print(f"❌ Erro ao extrair tabelas: {e}")
-            raise
     
     def identificar_colunas_rol(self, df):
         print("🧹 Limpando e identificando colunas...")
 
         df_limpo = df.copy()
-
         df_limpo = df_limpo.dropna(axis=1, how='all')
-        
         df_limpo = df_limpo.dropna(axis=0, how='all')
-
         primeira_linha = df_limpo.iloc[0] if len(df_limpo) > 0 else pd.Series()
 
-        textos_cabecalho = ['PROCEDIMENTO', 'CÓDIGO', 'DESCRIÇÃO', 'OD', 'AMB', 'PROC', 'DESCR']
+        textos_cabecalho = ['PROCEDIMENTO', 'RN (alteração)', 'VIGÊNCIA', 'SEG. ODONTOLÓGICA', 'SEG. AMBIENTAL', 'HCO', 'HSO', 'REF', 'PAC', 'DUT', 'SUBGRUPO' 'GRUPO', 'CAPÍTULO']
         primeira_linha_str = primeira_linha.astype(str).str.upper().tolist()
         
         if any(any(texto in str(cell) for texto in textos_cabecalho) for cell in primeira_linha_str):
             print("   Usando primeira linha como cabeçalho...")
             df_limpo.columns = df_limpo.iloc[0]
             df_limpo = df_limpo[1:].reset_index(drop=True)
-
-        mapeamento_colunas = {
-            'PROCEDIMENTO': 'COD_PROCEDIMENTO',
-            'PROC.': 'COD_PROCEDIMENTO',
-            'CÓDIGO': 'COD_PROCEDIMENTO',
-            'DESCRIÇÃO': 'DESCRICAO',
-            'DESCRIÇÃO DO PROCEDIMENTO': 'DESCRICAO',
-            'OD': 'SEG_ODONTOLOGICO',
-            'AMB': 'SEG_AMBULATORIAL',
-            'HC': 'SEG_HOSPITALAR',
-            'RN': 'SEG_RN',
-            'CO': 'SEG_CO',
-            'CÓDIGO DO PROCEDIMENTO': 'COD_PROCEDIMENTO',
-            'PROCEDIMENTOS E EVENTOS EM SAÚDE': 'DESCRICAO'
-        }
-
-        df_limpo.rename(columns=lambda x: mapeamento_colunas.get(str(x).strip(), str(x).strip()), 
-                       inplace=True)
 
         df_limpo.columns = df_limpo.columns.str.strip()
         
@@ -98,18 +74,8 @@ class PDFExtractorModel:
         df_substituido = df.copy()
 
         substituicoes = {
-            'OD': 'Seg. Odontológico',
+            'OD': 'Seg. Odontológica',
             'AMB': 'Seg. Ambulatorial', 
-            'HC': 'Seg. Hospitalar',
-            'RN': 'Seg. RN',
-            'CO': 'Seg. CO',
-            'S': 'Sim',
-            'N': 'Não',
-            'X': 'Incluso',
-            ' - ': 'Não se aplica',
-            '': 'Não informado',
-            'NÃO': 'Não',
-            'SIM': 'Sim'
         }
 
         for col in df_substituido.columns:
@@ -120,22 +86,28 @@ class PDFExtractorModel:
                     df_substituido[col] = df_substituido[col].replace(sigla, substituicao)
         
         return df_substituido
-    
+        
     def salvar_para_csv(self, df, caminho_csv):
         try:
             print(f"💾 Salvando CSV: {caminho_csv}")
 
-            os.makedirs(os.path.dirname(caminho_csv), exist_ok=True)
+            BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+            caminho_csv = os.path.join(BASE_DIR, "..", "..", caminho_csv)
+            caminho_csv = os.path.normpath(caminho_csv)
 
-            df.to_csv(caminho_csv, index=False, encoding='utf-8-sig', sep=';')
-            
+            pasta = os.path.dirname(caminho_csv)
+            if not os.path.exists(pasta):
+                os.makedirs(pasta, exist_ok=True)
+
+            df.to_csv(caminho_csv, index=False, encoding='utf-8', sep=';')
+
             tamanho = os.path.getsize(caminho_csv)
-            
-            print(f"✅ CSV salvo com sucesso")
+
+            print("✅ CSV salvo com sucesso")
             print(f"   📊 Linhas: {len(df)}")
             print(f"   📈 Colunas: {len(df.columns)}")
             print(f"   💾 Tamanho: {tamanho} bytes ({tamanho/1024:.1f} KB)")
-            
+
             return {
                 'sucesso': True,
                 'caminho': caminho_csv,
@@ -144,10 +116,11 @@ class PDFExtractorModel:
                 'linhas': len(df),
                 'colunas': len(df.columns)
             }
-            
+
         except Exception as e:
             print(f"❌ Erro ao salvar CSV: {e}")
             return {
                 'sucesso': False,
                 'erro': str(e)
             }
+

@@ -4,7 +4,7 @@ import os
 class ZipperModel:
     
     @staticmethod
-    def criar_zip(pasta_origem, nome_zip=None):
+    def criar_zip_pdf(pasta_origem, nome_zip=None):
         try:
             if not os.path.exists(pasta_origem):
                 return {'sucesso': False, 'erro': f'Pasta não existe: {pasta_origem}'}
@@ -45,4 +45,29 @@ class ZipperModel:
             
         except Exception as e:
             return {'sucesso': False, 'erro': str(e)}
+        
+    def criar_zip_arquivo_csv(self, caminho_arquivo, nome_zip):
+        try:
+            pasta = os.path.dirname(caminho_arquivo)
+            caminho_zip = os.path.join(pasta, nome_zip)
+
+            import zipfile
+            with zipfile.ZipFile(caminho_zip, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                zipf.write(caminho_arquivo, os.path.basename(caminho_arquivo))
+
+            try:
+                os.remove(caminho_arquivo)
+                print(f"[ZIP CSV] 🗑️ CSV removido: {caminho_arquivo}")
+            except Exception as e:
+                print(f"[ZIP CSV] ⚠️ Erro ao remover CSV: {e}")
+
+            return {
+                'sucesso': True,
+                'caminho_zip': caminho_zip
+            }
+        
+            
+        except Exception as e:
+            return {'sucesso': False, 'erro': str(e)}
+
     

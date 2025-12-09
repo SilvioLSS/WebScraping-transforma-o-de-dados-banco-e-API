@@ -23,10 +23,8 @@ class ScrapingController:
                 if not tabelas:
                     return {'sucesso': False, 'erro': 'Nenhuma tabela encontrada'}
                 
-                df_combinado = pd.concat(tabelas, ignore_index=True)
-                
-                df_limpo = self.pdf_extractor.identificar_colunas_rol(df_combinado)
-                
+                df_combinado = pd.concat(tabelas, ignore_index=True)                
+                df_limpo = self.pdf_extractor.identificar_colunas_rol(df_combinado)                
                 df_final = self.pdf_extractor.substituir_siglas(df_limpo)
                 
                 pasta = os.path.dirname(caminho_pdf)
@@ -36,9 +34,9 @@ class ScrapingController:
                 if not resultado_csv['sucesso']:
                     return resultado_csv
                 
-                resultado_zip_csv = self.zipper_model.criar_zip_arquivo_unico(
+                resultado_zip_csv = self.zipper_model.criar_zip_arquivo_csv(
                     caminho_csv, 
-                    "rol_procedimentos.zip"
+                    "Teste_Silvio_Luiz_Silva_Santos.zip"
                 )
                 
                 return {
@@ -57,7 +55,7 @@ class ScrapingController:
 
         def criar_pasta_pdfs(self):
             hoje = datetime.now().strftime("%Y-%m-%d")
-            pasta = os.path.join("statics/pdfs", hoje)
+            pasta = os.path.join("statics/resultados", hoje)
             os.makedirs(pasta, exist_ok=True)
             return pasta
 
@@ -102,7 +100,7 @@ class ScrapingController:
                 resultado_zip = None
                 if sucessos > 0:
                     print("[CONTROLLER] Compactando arquivos...")
-                    resultado_zip = self.zipper_model.criar_zip(pasta_pdfs)
+                    resultado_zip = self.zipper_model.criar_zip_pdf(pasta_pdfs)
 
                 if resultado_zip and resultado_zip['sucesso']:
                     for arquivo in resultados:
