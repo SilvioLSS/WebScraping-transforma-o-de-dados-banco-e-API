@@ -1,7 +1,7 @@
 # 🏥 Web Scraping – ANS (Gov.br)
 
 Projeto desenvolvido para teste técnico em vaga de estágio.
-O objetivo é acessar a página oficial da ANS no Gov.br, baixar os anexos do Rol de Procedimentos, extrair dados do *Anexo I* e gerar:
+O objetivo é acessar a página oficial da ANS no Gov.br, baixar os dois anexos do Rol de Procedimentos, extrair dados do *Anexo I* e gerar:
 
 - ZIP com todos os PDFs baixados  
 - CSV processado e limpo  
@@ -18,7 +18,6 @@ O objetivo é acessar a página oficial da ANS no Gov.br, baixar os anexos do Ro
 - pdfplumber  
 - Pandas  
 - Zipfile  
-- Pytest (testes)  
 
 ***
 
